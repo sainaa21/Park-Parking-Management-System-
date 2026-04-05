@@ -5,7 +5,7 @@ export function useEmployees() {
   return useQuery({
     queryKey: ["employees"],
     queryFn: async () => {
-      const res = await fetch("http://localhost:5000/api/employees", {
+      const res = await fetch("http://localhost:5003/api/employees", {
         credentials: "include",
       });
       if (!res.ok) throw new Error("Failed to fetch employees");
@@ -20,7 +20,7 @@ export function useCreateEmployee() {
 
   return useMutation({
     mutationFn: async (data) => {
-      const res = await fetch("http://localhost:5000/api/employees", {
+      const res = await fetch("http://localhost:5003/api/employees", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),

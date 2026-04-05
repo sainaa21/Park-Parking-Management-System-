@@ -7,7 +7,7 @@ export function useCheckIn() {
 
   return useMutation({
     mutationFn: async (data) => {
-      const res = await fetch("http://localhost:5000/api/checkin", {
+      const res = await fetch("http://localhost:5003/api/checkin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -50,7 +50,7 @@ export function useSearchTickets(query) {
       if (!query) return [];
 
       const res = await fetch(
-        `http://localhost:5000/api/tickets?query=${encodeURIComponent(query)}`,
+        `http://localhost:5003/api/tickets?query=${encodeURIComponent(query)}`,
         { credentials: "include" }
       );
 
@@ -68,7 +68,7 @@ export function useTicketDetails(id) {
       if (!id) return null;
 
       const res = await fetch(
-        `http://localhost:5000/api/tickets/${id}`,
+        `http://localhost:5003/api/tickets/${id}`,
         { credentials: "include" }
       );
 
@@ -85,7 +85,7 @@ export function useCheckOut() {
 
   return useMutation({
     mutationFn: async (data) => {
-      const res = await fetch("http://localhost:5000/api/checkout", {
+      const res = await fetch("http://localhost:5003/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -121,7 +121,7 @@ export function usePayments() {
   return useQuery({
     queryKey: ["payments"],
     queryFn: async () => {
-      const res = await fetch("http://localhost:5000/api/payments", {
+      const res = await fetch("http://localhost:5003/api/payments", {
         credentials: "include",
       });
 

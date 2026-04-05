@@ -4,7 +4,7 @@ export function useDashboardStats() {
   return useQuery({
     queryKey: ["dashboard-stats"],
     queryFn: async () => {
-      const res = await fetch("http://localhost:5000/api/dashboard", {
+      const res = await fetch("http://localhost:5003/api/dashboard", {
         credentials: "include",
       });
       if (!res.ok) throw new Error("Failed to fetch dashboard stats");
@@ -18,7 +18,7 @@ export function useReports() {
   return useQuery({
     queryKey: ["reports"],
     queryFn: async () => {
-      const res = await fetch("http://localhost:5000/api/reports", {
+      const res = await fetch("http://localhost:5003/api/reports", {
         credentials: "include",
       });
       if (!res.ok) throw new Error("Failed to fetch reports");

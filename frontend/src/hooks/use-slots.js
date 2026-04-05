@@ -4,7 +4,7 @@ export function useSlots() {
   return useQuery({
     queryKey: ["slots"],
     queryFn: async () => {
-      const res = await fetch("http://localhost:5000/api/slots", {
+      const res = await fetch("http://localhost:5003/api/slots", {
         credentials: "include",
       });
       if (!res.ok) throw new Error("Failed to fetch slots");
@@ -18,7 +18,7 @@ export function useCreateSlot() {
 
   return useMutation({
     mutationFn: async (data) => {
-      const res = await fetch("http://localhost:5000/api/slots", {
+      const res = await fetch("http://localhost:5003/api/slots", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -41,7 +41,7 @@ export function useUpdateSlot() {
   return useMutation({
     mutationFn: async ({ id, ...updates }) => {
       const res = await fetch(
-        `http://localhost:5000/api/slots/${id}`,
+        `http://localhost:5003/api/slots/${id}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
