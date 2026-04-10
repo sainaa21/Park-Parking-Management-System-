@@ -1,6 +1,6 @@
 import { Layout } from "../components/Layout";
 import { StatsCard } from "../components/StatsCard";
-import { useDashboardStats } from "../hooks/use-dashboard";
+import { useDashboard } from "../hooks/use-dashboard"; 
 import {
   Car,
   CheckCircle2,
@@ -34,7 +34,7 @@ const quickActions = [
 ];
 
 export default function Dashboard() {
-  const { data: stats, isLoading } = useDashboardStats();
+  const { data: stats, isLoading } = useDashboard(); // ✅ correct hook
 
   if (isLoading) {
     return (
@@ -63,39 +63,43 @@ export default function Dashboard() {
           </p>
         </div>
 
+        {/* ✅ FIXED DATA MAPPING */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatsCard
             title="Total Slots"
-            value={stats?.totalSlots || 0}
+            value={stats?.total || 0}
             icon={ParkingSquare}
             color="default"
           />
+
           <StatsCard
             title="Free Slots"
-            value={stats?.freeSlots || 0}
+            value={stats?.available || 0}
             icon={CheckCircle2}
             color="success"
             trend={`${Math.round(
-              ((stats?.freeSlots || 0) / (stats?.totalSlots || 1)) * 100
+              ((stats?.available || 0) / (stats?.total || 1)) * 100
             )}% Available`}
           />
+
           <StatsCard
             title="Occupied"
-            value={stats?.occupiedSlots || 0}
+            value={stats?.occupied || 0}
             icon={Car}
             color="warning"
           />
+
           <StatsCard
             title="Today's Revenue"
-            value={`$${stats?.todayRevenue || 0}`}
+            value={`₹${stats?.revenue || 0}`}
             icon={CircleDollarSign}
             color="primary"
             trend="Gross income"
           />
         </div>
 
+        {/* Quick Actions + Status */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Quick Actions */}
           <div className="glass-card rounded-2xl p-6">
             <h3 className="text-lg font-bold text-white mb-4">
               Quick Actions
@@ -116,7 +120,6 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Activity Placeholder */}
           <div className="glass-card rounded-2xl p-6 flex flex-col justify-center items-center text-center">
             <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
               <Car className="w-8 h-8 text-white/40" />

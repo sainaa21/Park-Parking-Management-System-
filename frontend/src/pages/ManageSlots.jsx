@@ -44,18 +44,8 @@ import {
 
 const slotSchema = z.object({
   slotNumber: z.string().min(1),
-  slotType: z.enum([
-    "Car",
-    "Bike",
-    "Truck",
-    "SUV",
-    "Handicap",
-    "EV Charging",
-    "Bicycle",
-    "Scooter",
-  ]),
+  slotType: z.string(),
   level: z.string().min(1),
-  status: z.enum(["Free", "Occupied"]),
 });
 
 export default function ManageSlots() {
@@ -72,7 +62,6 @@ export default function ManageSlots() {
       slotNumber: "",
       slotType: "Car",
       level: "G",
-      status: "Free",
     },
   });
 
@@ -104,7 +93,6 @@ export default function ManageSlots() {
       slotNumber: slot.slotNumber,
       slotType: slot.slotType,
       level: slot.level || "G",
-      status: slot.status,
     });
     setOpen(true);
   };
@@ -133,7 +121,7 @@ export default function ManageSlots() {
             }}
           >
             <DialogTrigger asChild>
-              <Button className="bg-primary hover:bg-red-600 text-white rounded-xl shadow-lg shadow-primary/20">
+              <Button className="bg-primary hover:bg-red-600 text-white rounded-xl">
                 <Plus className="w-4 h-4 mr-2" /> Add Slot
               </Button>
             </DialogTrigger>
@@ -141,7 +129,7 @@ export default function ManageSlots() {
             <DialogContent className="bg-neutral-900 border-white/10 text-white">
               <DialogHeader>
                 <DialogTitle>
-                  {editingId ? "Edit Slot" : "Create New Slot"}
+                  {editingId ? "Edit Slot" : "Create Slot"}
                 </DialogTitle>
               </DialogHeader>
 
@@ -157,12 +145,8 @@ export default function ManageSlots() {
                       <FormItem>
                         <FormLabel>Slot Number</FormLabel>
                         <FormControl>
-                          <Input
-                            {...field}
-                            className="bg-white/5 border-white/10"
-                          />
+                          <Input {...field} className="bg-white/5" />
                         </FormControl>
-                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -178,29 +162,19 @@ export default function ManageSlots() {
                           defaultValue={field.value}
                         >
                           <FormControl>
-                            <SelectTrigger className="bg-white/5 border-white/10">
+                            <SelectTrigger className="bg-white/5">
                               <SelectValue />
                             </SelectTrigger>
                           </FormControl>
 
-                          <SelectContent className="bg-neutral-900 border-white/10 text-white">
-                            {[
-                              "Car",
-                              "Bike",
-                              "Truck",
-                              "SUV",
-                              "Handicap",
-                              "EV Charging",
-                              "Bicycle",
-                              "Scooter",
-                            ].map((t) => (
+                          <SelectContent className="bg-neutral-900 text-white">
+                            {["Car", "Bike", "Truck"].map((t) => (
                               <SelectItem key={t} value={t}>
                                 {t}
                               </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
-                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -211,24 +185,12 @@ export default function ManageSlots() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Level</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            className="bg-white/5 border-white/10"
-                          />
-                        </FormControl>
-                        <FormMessage />
+                        <Input {...field} className="bg-white/5" />
                       </FormItem>
                     )}
                   />
 
-                  <Button
-                    type="submit"
-                    className="w-full bg-primary"
-                    disabled={
-                      createSlot.isPending || updateSlot.isPending
-                    }
-                  >
+                  <Button type="submit" className="w-full bg-primary">
                     {editingId ? "Update Slot" : "Create Slot"}
                   </Button>
                 </form>
@@ -237,22 +199,15 @@ export default function ManageSlots() {
           </Dialog>
         </div>
 
+        {/* TABLE */}
         <div className="glass-card rounded-2xl overflow-hidden">
           <Table>
             <TableHeader className="bg-white/5">
-              <TableRow className="border-white/10 hover:bg-transparent">
-                <TableHead className="text-white/70">
-                  Number
-                </TableHead>
-                <TableHead className="text-white/70">
-                  Type
-                </TableHead>
-                <TableHead className="text-white/70">
-                  Level
-                </TableHead>
-                <TableHead className="text-white/70">
-                  Status
-                </TableHead>
+              <TableRow>
+                <TableHead className="text-white/70">Number</TableHead>
+                <TableHead className="text-white/70">Type</TableHead>
+                <TableHead className="text-white/70">Level</TableHead>
+                <TableHead className="text-white/70">Status</TableHead>
                 <TableHead className="text-right text-white/70">
                   Actions
                 </TableHead>
@@ -260,35 +215,28 @@ export default function ManageSlots() {
             </TableHeader>
 
             <TableBody>
-              {isLoading ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={5}
-                    className="text-center text-white/50 py-8"
-                  >
-                    Loading...
-                  </TableCell>
-                </TableRow>
-              ) : (
-                slots?.map((slot) => (
-                  <TableRow
-                    key={slot.id}
-                    className="border-white/5 hover:bg-white/5"
-                  >
-                    <TableCell className="font-bold text-white">
+              {slots?.map((slot) => {
+                const status = slot.status?.toLowerCase();
+
+                return (
+                  <TableRow key={slot.id}>
+                    <TableCell className="text-white font-bold">
                       {slot.slotNumber}
                     </TableCell>
+
                     <TableCell className="text-white/80">
                       {slot.slotType}
                     </TableCell>
+
                     <TableCell className="text-white/60">
                       {slot.level}
                     </TableCell>
 
+                    {/* ✅ FIXED STATUS COLOR */}
                     <TableCell>
                       <span
-                        className={`px-2 py-1 rounded text-xs font-medium ${
-                          slot.status === "Free"
+                        className={`px-2 py-1 rounded text-xs ${
+                          status === "available"
                             ? "bg-emerald-500/20 text-emerald-400"
                             : "bg-red-500/20 text-red-400"
                         }`}
@@ -302,14 +250,13 @@ export default function ManageSlots() {
                         variant="ghost"
                         size="icon"
                         onClick={() => handleEdit(slot)}
-                        className="hover:bg-white/10 hover:text-white text-white/50"
                       >
                         <Edit2 className="w-4 h-4" />
                       </Button>
                     </TableCell>
                   </TableRow>
-                ))
-              )}
+                );
+              })}
             </TableBody>
           </Table>
         </div>

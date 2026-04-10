@@ -70,9 +70,11 @@ export default function SlotMap() {
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
             {filteredSlots.map((slot, i) => {
-              const isOccupied = slot.status === "Occupied";
-              const Icon =
-                vehicleIcons[slot.slotType] || Car;
+              // ✅ FIX: normalize status
+              const status = slot.status?.toLowerCase();
+              const isAvailable = status === "available";
+
+              const Icon = vehicleIcons[slot.slotType] || Car;
 
               return (
                 <motion.div
@@ -82,18 +84,18 @@ export default function SlotMap() {
                   transition={{ delay: i * 0.02 }}
                   className={cn(
                     "aspect-square rounded-2xl border p-4 flex flex-col items-center justify-between relative overflow-hidden group transition-all duration-300",
-                    isOccupied
-                      ? "bg-red-900/10 border-red-500/20 shadow-[0_0_15px_rgba(239,68,68,0.1)]"
-                      : "bg-emerald-900/10 border-emerald-500/20 hover:border-emerald-500/50 hover:bg-emerald-900/20 cursor-pointer"
+                    isAvailable
+                      ? "bg-emerald-900/10 border-emerald-500/20 hover:border-emerald-500/50 hover:bg-emerald-900/20 cursor-pointer"
+                      : "bg-red-900/10 border-red-500/20 shadow-[0_0_15px_rgba(239,68,68,0.1)]"
                   )}
                 >
                   <div className="flex w-full justify-between items-start">
                     <span
                       className={cn(
                         "text-xs font-bold px-2 py-1 rounded-md",
-                        isOccupied
-                          ? "bg-red-500/20 text-red-400"
-                          : "bg-emerald-500/20 text-emerald-400"
+                        isAvailable
+                          ? "bg-emerald-500/20 text-emerald-400"
+                          : "bg-red-500/20 text-red-400"
                       )}
                     >
                       {slot.slotNumber}
@@ -103,17 +105,17 @@ export default function SlotMap() {
                   <div
                     className={cn(
                       "flex-1 flex items-center justify-center transition-transform duration-300",
-                      isOccupied
-                        ? "scale-100"
-                        : "scale-75 opacity-50 group-hover:scale-90 group-hover:opacity-100"
+                      isAvailable
+                        ? "scale-75 opacity-50 group-hover:scale-90 group-hover:opacity-100"
+                        : "scale-100"
                     )}
                   >
                     <Icon
                       className={cn(
                         "w-10 h-10",
-                        isOccupied
-                          ? "text-red-500"
-                          : "text-emerald-500"
+                        isAvailable
+                          ? "text-emerald-500"
+                          : "text-red-500"
                       )}
                     />
                   </div>
@@ -124,7 +126,7 @@ export default function SlotMap() {
                     </p>
                   </div>
 
-                  {isOccupied && (
+                  {!isAvailable && (
                     <div className="absolute inset-0 bg-red-500/5 pointer-events-none" />
                   )}
                 </motion.div>

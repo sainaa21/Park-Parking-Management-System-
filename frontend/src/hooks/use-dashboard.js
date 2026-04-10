@@ -1,27 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 
-export function useDashboardStats() {
+export function useDashboard() {
   return useQuery({
-    queryKey: ["dashboard-stats"],
+    queryKey: ["dashboard"],
     queryFn: async () => {
-      const res = await fetch("http://localhost:5003/api/dashboard", {
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error("Failed to fetch dashboard stats");
-      return res.json();
-    },
-    refetchInterval: 30000,
-  });
-}
+      const res = await fetch("http://localhost:5003/api/dashboard/stats");
 
-export function useReports() {
-  return useQuery({
-    queryKey: ["reports"],
-    queryFn: async () => {
-      const res = await fetch("http://localhost:5003/api/reports", {
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error("Failed to fetch reports");
+      if (!res.ok) throw new Error("Failed");
+
       return res.json();
     },
   });

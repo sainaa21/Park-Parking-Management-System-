@@ -2,10 +2,16 @@ const express = require("express");
 const router = express.Router();
 const db = require("../db/knex");
 
+// ✅ CHECK-IN
 router.post("/checkin", async (req, res) => {
-  const { vehicle_number, driver_name, slot_id } = req.body;
+  let { vehicle_number, driver_name, slot_id } = req.body;
+
+  console.log("BODY:", req.body);
 
   try {
+    // 🔥 FIX 1: ensure slot_id is number
+    slot_id = Number(slot_id);
+
     const slot = await db("parking_slots")
       .where({ id: slot_id, status: "available" })
       .first();
@@ -14,17 +20,19 @@ router.post("/checkin", async (req, res) => {
       return res.status(400).json({ message: "Slot not available" });
     }
 
+    // 🔥 FIX 2: insert correct slot_id
     const [vehicle] = await db("vehicles")
       .insert({
         vehicle_number,
         driver_name,
-        slot_id,
+        slot_id: slot.id, // ALWAYS use DB id
         entry_time: new Date(),
       })
       .returning("*");
 
+    // 🔥 FIX 3: update slot status
     await db("parking_slots")
-      .where({ id: slot_id })
+      .where({ id: slot.id })
       .update({ status: "occupied" });
 
     res.json({
@@ -36,10 +44,12 @@ router.post("/checkin", async (req, res) => {
       },
     });
   } catch (err) {
+    console.log("ERROR:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
+// ✅ ACTIVE VEHICLES
 router.get("/active", async (req, res) => {
   try {
     const vehicles = await db("vehicles").whereNull("exit_time");
@@ -49,6 +59,7 @@ router.get("/active", async (req, res) => {
   }
 });
 
+// ✅ PREVIEW AMOUNT
 router.get("/preview/:id", async (req, res) => {
   const { id } = req.params;
 
@@ -73,6 +84,7 @@ router.get("/preview/:id", async (req, res) => {
   }
 });
 
+// ✅ CHECKOUT
 router.post("/checkout", async (req, res) => {
   const { vehicle_id } = req.body;
 
@@ -104,6 +116,7 @@ router.post("/checkout", async (req, res) => {
       .where({ id: vehicle_id })
       .update({ exit_time });
 
+    // 🔥 FIX: free slot correctly
     await db("parking_slots")
       .where({ id: vehicle.slot_id })
       .update({ status: "available" });

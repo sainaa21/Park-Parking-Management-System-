@@ -2,6 +2,9 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 const db = require("./db/knex");
+const dashboardRoutes = require("./routes/dashboard");
+const employeeRoutes = require("./routes/employees");
+const reportsRoutes = require("./routes/reports");
 
 const app = express();
 
@@ -20,11 +23,12 @@ db.raw("SELECT 1+1 AS result")
 app.get("/", (req, res) => {
   res.send("API is running");
 });
-
+app.use("/api/reports", reportsRoutes);
+app.use("/api/employees", employeeRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/slots", require("./routes/slots"));
 app.use("/api/vehicles", require("./routes/vehicles"));
 app.use("/api/payments", require("./routes/payments"));
-app.use("/api/employees", require("./routes/employees"));
 
 const PORT = process.env.PORT || 5003;
 

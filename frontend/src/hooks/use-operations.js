@@ -9,11 +9,7 @@ export function useCheckIn() {
       const res = await fetch("http://localhost:5003/api/vehicles/checkin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          vehicle_number: data.vehicleNumber,
-          driver_name: data.ownerName,
-          slot_id: data.slotId,
-        }),
+        body: JSON.stringify(data),
       });
 
       if (!res.ok) throw new Error("Check-in failed");
@@ -27,41 +23,7 @@ export function useCheckIn() {
   });
 }
 
-export function useSearchTickets(query) {
-  return useQuery({
-    queryKey: ["tickets", query],
-    queryFn: async () => {
-      if (!query) return [];
 
-      const res = await fetch(
-        `http://localhost:5003/api/tickets?query=${encodeURIComponent(query)}`,
-        { credentials: "include" }
-      );
-
-      if (!res.ok) throw new Error("Search failed");
-      return res.json();
-    },
-    enabled: query.length > 0,
-  });
-}
-
-export function useTicketDetails(id) {
-  return useQuery({
-    queryKey: ["ticket", id],
-    queryFn: async () => {
-      if (!id) return null;
-
-      const res = await fetch(
-        `http://localhost:5003/api/tickets/${id}`,
-        { credentials: "include" }
-      );
-
-      if (!res.ok) throw new Error("Ticket not found");
-      return res.json();
-    },
-    enabled: !!id,
-  });
-}
 
 export function useCheckOut() {
   const queryClient = useQueryClient();
@@ -72,23 +34,25 @@ export function useCheckOut() {
       const res = await fetch("http://localhost:5003/api/vehicles/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-        credentials: "include",
+        body: JSON.stringify({
+          vehicle_id: data.vehicle_id,
+        }),
       });
 
       if (!res.ok) throw new Error("Check-out failed");
+
       return res.json();
     },
 
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast({
         title: "Check-out Successful",
-        description: `Payment processed`,
+        description: "Payment processed",
       });
 
       queryClient.invalidateQueries({ queryKey: ["slots"] });
-      queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] });
       queryClient.invalidateQueries({ queryKey: ["payments"] });
+      queryClient.invalidateQueries({ queryKey: ["active-vehicles"] });
     },
 
     onError: (error) => {
